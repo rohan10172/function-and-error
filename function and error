@@ -1,0 +1,50 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract UniversityGradingSystem {
+    address public owner;
+    mapping(address => uint256) public courseGrades;
+    uint256 public totalCourses;
+
+    constructor() {
+        owner = msg.sender; // Set the contract deployer as the owner
+    }
+
+    // Modifier to check if the caller is the owner
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Caller is not the owner");
+        _;
+    }
+
+    // Function to assign a grade to a course for a student
+    function assignCourseGrade(address student, uint256 grade) public onlyOwner {
+        require(grade >= 0 && grade <= 100, "Grade must be between 0 and 100");
+        if (courseGrades[student] == 0) {
+            totalCourses += 1;
+        }
+        courseGrades[student] = grade;
+    }
+
+    // Function to retrieve a student's grade for a course
+    function getCourseGrade(address student) public view returns (uint256) {
+        uint256 grade = courseGrades[student];
+        require(grade > 0, "No grade assigned for this course");
+        return grade;
+    }
+
+    // Function to demonstrate assert()
+    function checkTotalCourses() public view returns (string memory) {
+        // This assert checks if total courses is non-negative
+        assert(totalCourses >= 0);
+        return "Total courses count is non-negative";
+    }
+
+    // Function to reset a student's grade for a course using revert()
+    function resetCourseGrade(address student) public onlyOwner {
+        if (courseGrades[student] == 0) {
+            revert("Course grade is already zero or not assigned");
+        }
+        courseGrades[student] = 0;
+        totalCourses -= 1;
+    }
+}
